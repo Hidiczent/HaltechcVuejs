@@ -26,14 +26,22 @@
           <td>{{ item.currency }}</td>
           <td>{{ item.created_at }}</td>
           <td>
-            <i class="fas fa-pen" style="width: 50px; color: blue"></i>
-            <i class="fas fa-trash" style="color: red"></i>
+            <i
+              class="fas fa-pen"
+              style="width: 50px; color: blue"
+              @click="showUpdateModal(item.id)"
+            ></i>
+            <i
+              class="fas fa-trash"
+              style="color: red"
+              @click="deleteData(item.id)"
+            ></i>
           </td>
         </tr>
       </tbody>
     </table>
-
-    <div class="modal" :class="{ 'is-active': isModalActive }">
+    <!-- Add  -->
+    <div class="modal" :class="{ 'is-active': isModalAddActive }">
       <div class="modal-background"></div>
       <div class="modal-card">
         <header class="modal-card-head">
@@ -41,7 +49,7 @@
           <button
             class="delete"
             aria-label="close"
-            @click="isModalActive = false"
+            @click="isModalAddActive = false"
           ></button>
         </header>
         <section class="modal-card-body">
@@ -79,6 +87,54 @@
         </section>
       </div>
     </div>
+    <!-- End Add  -->
+    <!-- Edit  -->
+    <div class="modal" :class="{ 'is-active': UpdateisModalActive }">
+      <div class="modal-background" @click="UpdateisModalActive = false"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Edit Modal Title</p>
+          <button
+            class="delete"
+            aria-label="close"
+            @click="UpdateisModalActive = false"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <form @submit.prevent="onSubmitUpdate">
+            <div class="field">
+              <input
+                class="input is-link"
+                type="text"
+                v-model="name"
+                placeholder="Please enter name"
+                :class="{ 'is-danger': errors.name }"
+              />
+              <p v-if="errors.name" class="help is-danger">{{ errors.name }}</p>
+            </div>
+            <div class="field">
+              <input
+                class="input is-link"
+                type="text"
+                v-model="currency"
+                placeholder="Please enter currency"
+                :class="{ 'is-danger': errors.currency }"
+              />
+              <p v-if="errors.currency" class="help is-danger">
+                {{ errors.currency }}
+              </p>
+            </div>
+            <footer class="modal-card-foot">
+              <div class="buttons">
+                <button type="submit" class="button is-success">
+                  Update Data
+                </button>
+              </div>
+            </footer>
+          </form>
+        </section>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -98,7 +154,7 @@ const validationSchema = yup.object({
     .max(3, "Currency must be at most 3 characters."),
 });
 
-const { handleSubmit, errors } = useForm({
+const { handleSubmit, errors, setValues } = useForm({
   validationSchema,
 });
 
@@ -108,13 +164,32 @@ const { value: currency } = useField<string>("currency");
 const onSubmit = handleSubmit(async (value) => {
   console.log("Submitted values:", value);
 });
+const onSubmitUpdate = handleSubmit(async (value) => {
+  UpdateisModalActive.value = false;
+  console.log("Updated values:", value);
+});
 
-const isModalActive = ref(false);
+const showUpdateModal = (id: number) => {
+  const countryToUpdate = state.countries.find((item: any) => item.id === id);
+  if (countryToUpdate) {
+    setValues({
+      name: countryToUpdate.name,
+      currency: countryToUpdate.currency,
+    });
+    UpdateisModalActive.value = true;
+  }
+  console.log(id);
+};
+const isModalAddActive = ref(false);
+const UpdateisModalActive = ref(false);
 
 const openModal = () => {
-  isModalActive.value = true;
+  isModalAddActive.value = true;
 };
 
+const deleteData = (id: number) => {
+  console.log("Delete: ", id);
+};
 onMounted(async () => {
   await getAll();
 });
@@ -126,7 +201,6 @@ const setLocale = (value: string) => {
 </script>
 
 <style>
-
 .lao-text {
   font-family: "Noto Sans Lao", sans-serif;
 }

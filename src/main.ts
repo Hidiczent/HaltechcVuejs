@@ -8,7 +8,7 @@ const pinia = createPinia();
 
 // ຄ່າເລິີ່ມຕົ້ນຂອງພາສາ
 
-const tenancy = "pao";
+const tenancy = "jimmy";
 const currentHostname = window.location.hostname;
 const expectedHostname = `${tenancy}.localhost`;
 
